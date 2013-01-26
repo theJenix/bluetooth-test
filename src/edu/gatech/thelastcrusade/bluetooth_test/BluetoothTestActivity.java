@@ -1,23 +1,34 @@
 package edu.gatech.thelastcrusade.bluetooth_test;
 
+import java.io.IOException;
+import java.util.UUID;
+
 import android.app.Activity;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
+import android.bluetooth.BluetoothServerSocket;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.location.GpsStatus.Listener;
 import android.os.Bundle;
 import android.view.Menu;
 import edu.gatech.thelastcrusade.bluetooth_test.util.Toaster;
 
 public class BluetoothTestActivity extends Activity {
+    private final BluetoothServerSocket mmServerSocket;
+    private final String HOST_NAME = "Connery's party";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_bluetooth_test);
         
+        // Use a temporary object that is later assigned to mmServerSocket,
+        // because mmServerSocket is final
+        BluetoothServerSocket tmp = null;
+
         final BluetoothAdapter adapter = BluetoothAdapter.getDefaultAdapter();
         if (!adapter.isEnabled()) {
             adapter.enable();
@@ -27,27 +38,15 @@ public class BluetoothTestActivity extends Activity {
             }
         }
         
-        IntentFilter filter = new IntentFilter();
-        filter.addAction(BluetoothAdapter.ACTION_DISCOVERY_STARTED);
-        filter.addAction(BluetoothAdapter.ACTION_DISCOVERY_FINISHED);
-        filter.addAction(BluetoothDevice.ACTION_FOUND);
-        this.registerReceiver(new BroadcastReceiver() {
-
-            @Override
-            public void onReceive(Context context, Intent intent) {
-                if (intent.getAction().equals(BluetoothAdapter.ACTION_DISCOVERY_STARTED)) {
-                    onDiscoveryStarted(adapter);
-                } else if (intent.getAction().equals(BluetoothAdapter.ACTION_DISCOVERY_FINISHED)) {
-                    onDiscoveryFinished(adapter);
-                } else if (intent.getAction().equals(BluetoothDevice.ACTION_FOUND)) {
-                    onDeviceFound(adapter);
-                }
-
-            }
+        try {
+            tmp = adapter.listenUsingRfcommWithServiceRecord(HOST_NAME, UUID.fromString(this.getString(R.string.app.uuid)));
+        } catch (IOException e)
+        {
             
-        }, filter);
+        }
+        
+        mmServerSocket = tmp;
 
-        adapter.startDiscovery();
     }
 
     private void enableDiscovery() {
@@ -58,7 +57,7 @@ public class BluetoothTestActivity extends Activity {
     }
 
     protected void onDeviceFound(BluetoothAdapter adapter) {
-        // TODO Auto-generated method stub
+        
         
     }
 
