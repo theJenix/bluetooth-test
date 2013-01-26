@@ -7,9 +7,10 @@
     <uses-sdk
         android:minSdkVersion="8"
         android:targetSdkVersion="17" />
-    <uses-permission android:name="android.permission.BLUETOOTH"/>
-    <uses-permission android:name="android.permission.BLUETOOTH_ADMIN"/>
-    
+
+    <uses-permission android:name="android.permission.BLUETOOTH" />
+    <uses-permission android:name="android.permission.BLUETOOTH_ADMIN" />
+
     <application
         android:allowBackup="true"
         android:icon="@drawable/ic_launcher"
@@ -18,6 +19,10 @@
         <activity
             android:name="edu.gatech.thelastcrusade.bluetooth_test.BluetoothTestActivity"
             android:label="@string/app_name" >
+        </activity>
+        <activity
+            android:name="edu.gatech.thelastcrusade.bluetooth_test.BluetoothTestClientActivity"
+            android:label="@string/title_activity_bluetooth_test_client" >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
