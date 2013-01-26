@@ -28,9 +28,16 @@ public class BluetoothTestActivity extends Activity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        // TODO Auto-generated method stub
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_bluetooth_test);
-
+        Log.w(TAG, "Create Called");
+    }
+    
+    @Override
+    protected void onResume() {
+        super.onResume();
+        Log.w(TAG, "Resume Called");
         // Use a temporary object that is later assigned to mmServerSocket,
         // because mmServerSocket is final
         BluetoothServerSocket tmp = null;
@@ -43,6 +50,7 @@ public class BluetoothTestActivity extends Activity {
                 return;
             }
         }
+        
         enableDiscovery();
 
         final Handler handler = new Handler(new Handler.Callback() {
@@ -65,15 +73,12 @@ public class BluetoothTestActivity extends Activity {
             }
 
             BluetoothSocket socket = null;
-            // Keep listening until exception occurs or a socket is returned
-            while (true) {
-                // If a connection was accepted
-                if (socket != null) {
-                    socket = mmServerSocket.accept();
-                    Log.w(TAG, "Connection accepted");
-                    connectedThread = new ConnectedThread(socket, handler);
-                    connectedThread.run();
-                }
+            // If a connection was accepted
+            socket = mmServerSocket.accept();
+            if (socket != null) {
+                Log.w(TAG, "Connection accepted");
+                connectedThread = new ConnectedThread(socket, handler);
+                connectedThread.run();
             }
         } catch (IOException e){ }
     }
