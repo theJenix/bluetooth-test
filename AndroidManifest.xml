@@ -29,6 +29,10 @@
             android:name="edu.gatech.thelastcrusade.bluetooth_test.BluetoothTestClientActivity"
             android:label="@string/title_activity_bluetooth_test_client" >
         </activity>
+        <activity
+            android:name="edu.gatech.thelastcrusade.bluetooth_test.BluetoothTestServerActivity"
+            android:label="@string/title_activity_bluetooth_test_server_activitiy" >
+        </activity>
     </application>
 
 </manifest>

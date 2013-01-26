@@ -12,6 +12,7 @@ import android.content.IntentFilter;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
+import android.util.Log;
 import android.view.Menu;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -21,12 +22,15 @@ import edu.gatech.thelastcrusade.bluetooth_test.util.Toaster;
 public class BluetoothTestClientActivity extends Activity {
 
     private ConnectThread   connectThread;
-    private ConnectedThread messageThread;
+    private MessageThread messageThread;
+
+    private final String TAG = "Bluetooth_Host";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_bluetooth_test_client);
+        Log.w(TAG, "Create Called");
         
         final BluetoothAdapter adapter = BluetoothAdapter.getDefaultAdapter();
 
@@ -36,6 +40,7 @@ public class BluetoothTestClientActivity extends Activity {
             @Override
             public void onClick(View v) {
                 ((Button)findViewById(R.id.button0)).setEnabled(false);
+                Log.w(TAG, "Starting Discoverty");
                 adapter.startDiscovery();
             }
         });
@@ -61,7 +66,9 @@ public class BluetoothTestClientActivity extends Activity {
 
     protected void onHelloButtonClicked() {
         //initial test message
-        this.messageThread.write("Hello, Reid".getBytes()); 
+        Log.w(TAG, "Sending test message");
+        String message = "Hello, Reid.  From: " + BluetoothAdapter.getDefaultAdapter().getName();
+        this.messageThread.write(message.getBytes()); 
     }
 
     /**
@@ -109,11 +116,12 @@ public class BluetoothTestClientActivity extends Activity {
     }
 
     protected void onConnected(BluetoothAdapter adapter, Intent intent) {
+        Log.w(TAG, "Connected to server");
         Handler handler = new Handler(new Handler.Callback() {
             
             @Override
             public boolean handleMessage(Message msg) {
-                if (msg.what == ConnectedThread.MESSAGE_READ) {
+                if (msg.what == MessageThread.MESSAGE_READ) {
                     onReadMessage(msg.obj.toString(), msg.arg1);
                     return true;
                 }
@@ -122,25 +130,28 @@ public class BluetoothTestClientActivity extends Activity {
         });
         
         //create the message thread, which will be responsible for reading and writing messages
-        this.messageThread = new ConnectedThread(this.connectThread.getSocket(), handler);
-        this.messageThread.run();
+        this.messageThread = new MessageThread(this.connectThread.getSocket(), handler);
+        this.messageThread.start();
     }
 
     protected void onDeviceFound(BluetoothAdapter adapter, Intent intent) {
         // Get the BluetoothDevice object from the Intent
         BluetoothDevice device = intent.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE);
-        Toaster.tToast(this, device.getName() + "\n" + device.getAddress());
+//        String deviceInfo = device.getName() + "\n" + device.getAddress();
+        Log.w(TAG, "Device found: " + device.getName() + "(" + device.getAddress() + ")");
+//        Toaster.tToast(this, device.getName() + "\n" + device.getAddress());
         // Cancel discovery because it will slow down the connection
         adapter.cancelDiscovery();
         
         for (BluetoothDevice bonded : adapter.getBondedDevices()) {
             if (bonded.getAddress().equals(device.getAddress())) {
+                Log.w(TAG, "Already paired!  Using paired device");
                 device = bonded;
             }
         }
         try {
             this.connectThread = new ConnectThread(this, device);
-            this.connectThread.run();
+            this.connectThread.start();
         } catch (IOException e) {
             e.printStackTrace();
             Toaster.tToast(this, "Unable to create ConnectThread to connect to server");
@@ -148,16 +159,17 @@ public class BluetoothTestClientActivity extends Activity {
     }
 
     protected void onReadMessage(String string, int arg1) {
+        Log.w(TAG, "Message received: " + string);
         Toaster.tToast(this, string);
     }
 
     protected void onDiscoveryFinished(BluetoothAdapter adapter) {
+        Log.w(TAG, "Discovery finished");
         ((Button)findViewById(R.id.button0)).setEnabled(true);
     }
 
     protected void onDiscoveryStarted(BluetoothAdapter adapter) {
-        // TODO Auto-generated method stub
-        
+        Log.w(TAG, "Discovery started");
     }
 
     @Override

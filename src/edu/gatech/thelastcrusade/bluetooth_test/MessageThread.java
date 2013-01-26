@@ -8,7 +8,14 @@ import java.io.OutputStream;
 import android.bluetooth.BluetoothSocket;
 import android.os.Handler;
 
-public class ConnectedThread extends Thread {
+/**
+ * This thread is responsible for sending and receiving messages once the connection has been established.
+ * 
+ * 
+ * @author Jesse Rosalia
+ *
+ */
+public class MessageThread extends Thread {
     public static final int MESSAGE_READ = 1;
 
     private final BluetoothSocket mmSocket;
@@ -17,7 +24,8 @@ public class ConnectedThread extends Thread {
  
     private int   messageNumber = 0;
     private Handler mmHandler;
-    public ConnectedThread(BluetoothSocket socket, Handler handler) {
+    public MessageThread(BluetoothSocket socket, Handler handler) {
+        super("MessageThread-" + socket.getRemoteDevice().getName());
         mmSocket  = socket;
         mmHandler = handler;
         InputStream tmpIn = null;

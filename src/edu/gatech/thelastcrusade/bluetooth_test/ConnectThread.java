@@ -8,6 +8,11 @@ import android.bluetooth.BluetoothSocket;
 import android.content.Context;
 import android.content.Intent;
 
+/**
+ * This thread is responsible for establishing a connection to a discovered device.
+ * 
+ * @author Jesse Rosalia
+ */
 public class ConnectThread extends Thread {
     private final BluetoothSocket mmSocket;
     private final BluetoothDevice mmDevice;
