@@ -46,17 +46,11 @@ public class ConnectThread extends Thread {
             return;
         }
 
-        onConnected(mmSocket);
-//        try {
-//            thread.wait();
-//        } catch (InterruptedException e) {
-//            //do nothing
-//        }
-//        notifyDisconnected();
+        notifyConnected();
     }
 
-    public void onConnected(BluetoothSocket socket) {
-        //
+    public BluetoothSocket getSocket() {
+        return mmSocket;
     }
 
     /**
@@ -70,17 +64,17 @@ public class ConnectThread extends Thread {
         mmContext.sendBroadcast(intent);
     }
 
-    /**
-     * Notify the UI or any listeners that the socket is disconnected 
-     * 
-     */
-    private void notifyDisconnected() {
-        Intent intent = new Intent();
-        intent.setAction(ACTION_DISCONNECTED);
-        intent.addCategory(Intent.CATEGORY_DEFAULT);
-        mmContext.sendBroadcast(intent);
-    }
-    
+//    /**
+//     * Notify the UI or any listeners that the socket is disconnected 
+//     * 
+//     */
+//    private void notifyDisconnected() {
+//        Intent intent = new Intent();
+//        intent.setAction(ACTION_DISCONNECTED);
+//        intent.addCategory(Intent.CATEGORY_DEFAULT);
+//        mmContext.sendBroadcast(intent);
+//    }
+//    
     /** Will cancel an in-progress connection, and close the socket */
     public void cancel() {
         try {

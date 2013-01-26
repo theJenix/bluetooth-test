@@ -5,7 +5,6 @@ import java.io.IOException;
 import android.app.Activity;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
-import android.bluetooth.BluetoothSocket;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
@@ -14,26 +13,78 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
 import android.view.Menu;
+import android.view.View;
+import android.view.View.OnClickListener;
+import android.widget.Button;
 import edu.gatech.thelastcrusade.bluetooth_test.util.Toaster;
 
 public class BluetoothTestClientActivity extends Activity {
 
-    private ConnectThread thread;
-    protected ConnectedThread connectedThread;
+    private ConnectThread   connectThread;
+    private ConnectedThread messageThread;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_bluetooth_test_client);
+        
         final BluetoothAdapter adapter = BluetoothAdapter.getDefaultAdapter();
+
+        Button button = (Button)this.findViewById(R.id.button0);
+        button.setOnClickListener(new OnClickListener() {
+
+            @Override
+            public void onClick(View v) {
+                ((Button)findViewById(R.id.button0)).setEnabled(false);
+                adapter.startDiscovery();
+            }
+        });
+        button = (Button)this.findViewById(R.id.button1);
+        button.setOnClickListener(new OnClickListener() {
+
+            @Override
+            public void onClick(View v) {
+                onHelloButtonClicked();
+            }
+        });
+
+        registerReceivers(adapter);
+        
+        try {
+            checkAndEnableBluetooth(adapter);
+        } catch (BluetoothNotEnabledException e) {
+            Toaster.tToast(this, "Unable to enable bluetooth adapter.");
+            e.printStackTrace();
+            return;
+        }
+    }
+
+    protected void onHelloButtonClicked() {
+        //initial test message
+        this.messageThread.write("Hello, Reid".getBytes()); 
+    }
+
+    /**
+     * Check if bluetooth is enabled, and if not, enable it. 
+     * 
+     * @param adapter
+     * @throws BluetoothNotEnabledException 
+     */
+    private void checkAndEnableBluetooth(BluetoothAdapter adapter) throws BluetoothNotEnabledException {
         if (!adapter.isEnabled()) {
             adapter.enable();
             if (!adapter.isEnabled()) {
-                Toaster.tToast(this, "Unable to enable bluetooth adapter.");
-                return;
+                throw new BluetoothNotEnabledException();
             }
         }
-        
+    }
+
+    /**
+     * Register receivers for the intent actions used to establish and manage the bluetooth connection
+     * 
+     * @param adapter
+     */
+    private void registerReceivers(final BluetoothAdapter adapter) {
         IntentFilter filter = new IntentFilter();
         filter.addAction(BluetoothAdapter.ACTION_DISCOVERY_STARTED);
         filter.addAction(BluetoothAdapter.ACTION_DISCOVERY_FINISHED);
@@ -55,21 +106,10 @@ public class BluetoothTestClientActivity extends Activity {
             }
             
         }, filter);
-
-        adapter.startDiscovery();
     }
 
     protected void onConnected(BluetoothAdapter adapter, Intent intent) {
-//       this.thread.write("Hello, Reid"); 
-    }
-
-    protected void onDeviceFound(BluetoothAdapter adapter, Intent intent) {
-        // Get the BluetoothDevice object from the Intent
-        BluetoothDevice device = intent.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE);
-        Toaster.tToast(this, device.getName() + "\n" + device.getAddress());
-        // Cancel discovery because it will slow down the connection
-        adapter.cancelDiscovery();
-        final Handler handler = new Handler(new Handler.Callback() {
+        Handler handler = new Handler(new Handler.Callback() {
             
             @Override
             public boolean handleMessage(Message msg) {
@@ -80,15 +120,22 @@ public class BluetoothTestClientActivity extends Activity {
                 return false;
             }
         });
+        
+        //create the message thread, which will be responsible for reading and writing messages
+        this.messageThread = new ConnectedThread(this.connectThread.getSocket(), handler);
+        this.messageThread.run();
+    }
+
+    protected void onDeviceFound(BluetoothAdapter adapter, Intent intent) {
+        // Get the BluetoothDevice object from the Intent
+        BluetoothDevice device = intent.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE);
+        Toaster.tToast(this, device.getName() + "\n" + device.getAddress());
+        // Cancel discovery because it will slow down the connection
+        adapter.cancelDiscovery();
+        
         try {
-            this.thread = new ConnectThread(this, device) {
-                @Override
-                public void onConnected(BluetoothSocket socket) {
-                    BluetoothTestClientActivity.this.connectedThread =
-                            new ConnectedThread(socket, handler);
-                }
-            };
-            this.thread.run();
+            this.connectThread = new ConnectThread(this, device);
+            this.connectThread.run();
         } catch (IOException e) {
             e.printStackTrace();
             Toaster.tToast(this, "Unable to create ConnectThread to connect to server");
@@ -100,8 +147,7 @@ public class BluetoothTestClientActivity extends Activity {
     }
 
     protected void onDiscoveryFinished(BluetoothAdapter adapter) {
-        // TODO Auto-generated method stub
-        
+        ((Button)findViewById(R.id.button0)).setEnabled(true);
     }
 
     protected void onDiscoveryStarted(BluetoothAdapter adapter) {
