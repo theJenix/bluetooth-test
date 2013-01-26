@@ -44,45 +44,23 @@ public class BluetoothTestActivity extends Activity {
         
         try {
             tmp = adapter.listenUsingRfcommWithServiceRecord(HOST_NAME, UUID.fromString(this.getString(R.string.app_uuid)));
-        } catch (IOException e)
-        {
+            mmServerSocket = tmp;
+            if(tmp != null){
+                Log.w(TAG, "Server Socket Made");
+            }
 
-        }
-        
-        mmServerSocket = tmp;
-        if(tmp != null){
-            Log.w(TAG, "Server Socket Made");
-        }
-        
-        BluetoothSocket socket = null;
-        // Keep listening until exception occurs or a socket is returned
-        while (true) {
-            try {
-                Log.w(TAG, "Waiting to accept");
-                socket = mmServerSocket.accept();
-                Log.w(TAG, "Connection accepted");
-            } catch (IOException e) {
-                break;
-            }
-            // If a connection was accepted
-            if (socket != null) {
-                try {
-                    Log.w(TAG, "Connection accepted 2");
+            BluetoothSocket socket = null;
+            // Keep listening until exception occurs or a socket is returned
+            while (true) {
+                // If a connection was accepted
+                if (socket != null) {
+                    socket = mmServerSocket.accept();
+                    Log.w(TAG, "Connection accepted");
+
                     mmServerSocket.close();
-                } catch (IOException e) {
-                    // TODO Auto-generated catch block
-                    e.printStackTrace();
                 }
-                break;
             }
-        }    
-    }
-    
-    /** Will cancel the listening socket, and cause the thread to finish */
-    public void cancel() {
-        try {
-            mmServerSocket.close();
-        } catch (IOException e) { }
+        } catch (IOException e){ }
     }
     
     private void enableDiscovery() {
@@ -93,7 +71,7 @@ public class BluetoothTestActivity extends Activity {
     }
 
     protected void onDeviceFound(BluetoothAdapter adapter) {
-        
+        // TODO Auto-generated method stub        
         
     }
 
