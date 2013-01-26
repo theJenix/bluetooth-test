@@ -7,17 +7,20 @@ import android.app.Activity;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothServerSocket;
+import android.bluetooth.BluetoothSocket;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.location.GpsStatus.Listener;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.Menu;
 import edu.gatech.thelastcrusade.bluetooth_test.util.Toaster;
 
 public class BluetoothTestActivity extends Activity {
-    private final BluetoothServerSocket mmServerSocket;
+    private final String TAG = "Bluetooth_Host";
+    private BluetoothServerSocket mmServerSocket;
     private final String HOST_NAME = "Connery's party";
 
     @Override
@@ -37,18 +40,51 @@ public class BluetoothTestActivity extends Activity {
                 return;
             }
         }
+        enableDiscovery();
         
         try {
-            tmp = adapter.listenUsingRfcommWithServiceRecord(HOST_NAME, UUID.fromString(this.getString(R.string.app.uuid)));
+            tmp = adapter.listenUsingRfcommWithServiceRecord(HOST_NAME, UUID.fromString(this.getString(R.string.app_uuid)));
         } catch (IOException e)
         {
-            
+
         }
         
         mmServerSocket = tmp;
-
+        if(tmp != null){
+            Log.w(TAG, "Server Socket Made");
+        }
+        
+        BluetoothSocket socket = null;
+        // Keep listening until exception occurs or a socket is returned
+        while (true) {
+            try {
+                Log.w(TAG, "Waiting to accept");
+                socket = mmServerSocket.accept();
+                Log.w(TAG, "Connection accepted");
+            } catch (IOException e) {
+                break;
+            }
+            // If a connection was accepted
+            if (socket != null) {
+                try {
+                    Log.w(TAG, "Connection accepted 2");
+                    mmServerSocket.close();
+                } catch (IOException e) {
+                    // TODO Auto-generated catch block
+                    e.printStackTrace();
+                }
+                break;
+            }
+        }    
     }
-
+    
+    /** Will cancel the listening socket, and cause the thread to finish */
+    public void cancel() {
+        try {
+            mmServerSocket.close();
+        } catch (IOException e) { }
+    }
+    
     private void enableDiscovery() {
         Intent discoverableIntent = new
         Intent(BluetoothAdapter.ACTION_REQUEST_DISCOVERABLE);
