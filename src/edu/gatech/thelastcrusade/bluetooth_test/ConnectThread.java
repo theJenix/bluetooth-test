@@ -32,7 +32,6 @@ public class ConnectThread extends Thread {
     }
 
     public void run() {
-
         try {
             // Connect the device through the socket. This will block
             // until it succeeds or throws an exception
@@ -60,7 +59,7 @@ public class ConnectThread extends Thread {
     private void notifyConnected() {
         Intent intent = new Intent();
         intent.setAction(ACTION_CONNECTED);
-        intent.addCategory(Intent.CATEGORY_DEFAULT);
+//        intent.addCategory(Intent.CATEGORY_DEFAULT);
         mmContext.sendBroadcast(intent);
     }
 

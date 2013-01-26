@@ -50,6 +50,10 @@ public class ConnectedThread extends Thread {
                 mmHandler.obtainMessage(MESSAGE_READ, this.messageNumber, 0, baos.toString())
                         .sendToTarget();
             } catch (IOException e) {
+                e.printStackTrace();
+                break;
+            } catch (Throwable t) {
+                t.printStackTrace();
                 break;
             }
         }

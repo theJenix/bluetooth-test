@@ -133,6 +133,11 @@ public class BluetoothTestClientActivity extends Activity {
         // Cancel discovery because it will slow down the connection
         adapter.cancelDiscovery();
         
+        for (BluetoothDevice bonded : adapter.getBondedDevices()) {
+            if (bonded.getAddress().equals(device.getAddress())) {
+                device = bonded;
+            }
+        }
         try {
             this.connectThread = new ConnectThread(this, device);
             this.connectThread.run();
