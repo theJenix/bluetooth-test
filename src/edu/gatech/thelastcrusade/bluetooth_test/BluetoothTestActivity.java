@@ -46,7 +46,15 @@ public class BluetoothTestActivity extends Activity {
             }
             
         }, filter);
+
         adapter.startDiscovery();
+    }
+
+    private void enableDiscovery() {
+        Intent discoverableIntent = new
+        Intent(BluetoothAdapter.ACTION_REQUEST_DISCOVERABLE);
+        discoverableIntent.putExtra(BluetoothAdapter.EXTRA_DISCOVERABLE_DURATION, 300);
+        startActivity(discoverableIntent);
     }
 
     protected void onDeviceFound(BluetoothAdapter adapter) {
