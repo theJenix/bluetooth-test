@@ -21,21 +21,15 @@ public class BluetoothTestServerActivity extends Activity {
     private StringBuilder message = new StringBuilder();
     private Object msgMutex = new Object();
 
-    private final String TAG = "Bluetooth_Host";
+    private final String TAG = "BluetoothTestServerActivity";
     private BluetoothServerSocket mmServerSocket;
-    private final String HOST_NAME = "Connery's party";
+    private final String HOST_NAME = "Sean Connery's party";
     protected MessageThread connectedThread;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_bluetooth_test_server);
-        Log.w(TAG, "Create Called");
-
-        enableDiscovery();
-        // Use a temporary object that is later assigned to mmServerSocket,
-        // because mmServerSocket is final
-        BluetoothServerSocket tmp = null;
 
         final BluetoothAdapter adapter = BluetoothAdapter.getDefaultAdapter();
         if (!adapter.isEnabled()) {
@@ -45,6 +39,8 @@ public class BluetoothTestServerActivity extends Activity {
                 return;
             }
         }
+
+        enableDiscovery();
         
         final Handler handler = new Handler(new Handler.Callback() {
 
@@ -57,12 +53,16 @@ public class BluetoothTestServerActivity extends Activity {
                 return false;
             }
         });
-        Log.w(TAG, "Handler Made");
+
         try {
-            tmp = adapter.listenUsingRfcommWithServiceRecord(HOST_NAME, UUID.fromString(this.getString(R.string.app_uuid)));
-            mmServerSocket = tmp;
-            if(tmp != null){
-                Log.w(TAG, "Server Socket Made");
+            mmServerSocket = adapter.listenUsingRfcommWithServiceRecord(
+                                HOST_NAME,
+                                UUID.fromString(this.getString(R.string.app_uuid))
+                             );
+            if(mmServerSocket != null){
+                Log.i(TAG, "Server Socket Made");
+            } else {
+                Log.w(TAG, "Server Socket NOT made");
             }
 
             new Thread() {
@@ -71,19 +71,21 @@ public class BluetoothTestServerActivity extends Activity {
                     try {
                         while(true) {
                             // If a connection was accepted
-                            socket = mmServerSocket.accept();
+                            socket = mmServerSocket.accept(); //blocking call
                             if (socket != null) {
-                                Log.w(TAG, "Connection accepted");
+                                Log.i(TAG, "Connection accepted");
                                 connectedThread = new MessageThread(socket, handler);
                                 connectedThread.start();
                             }
                         }
                     } catch (IOException e) {
-                        
+                        Log.w(TAG, e.getStackTrace().toString());
                     }
                 };
             }.start();
-        } catch (IOException e){ }
+        } catch (IOException e){
+            Log.w(TAG, e.getStackTrace().toString());
+        }
     }
 
     protected void onReadMessage(String string, int arg1) {
