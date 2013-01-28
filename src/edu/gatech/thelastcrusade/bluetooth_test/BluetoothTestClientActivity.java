@@ -1,6 +1,7 @@
 package edu.gatech.thelastcrusade.bluetooth_test;
 
 import java.io.IOException;
+import java.util.List;
 
 import android.app.Activity;
 import android.bluetooth.BluetoothAdapter;
@@ -17,6 +18,7 @@ import android.view.Menu;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.Button;
+import edu.gatech.thelastcrusade.bluetooth_test.model.Song;
 import edu.gatech.thelastcrusade.bluetooth_test.util.Toaster;
 
 public class BluetoothTestClientActivity extends Activity {
@@ -62,6 +64,18 @@ public class BluetoothTestClientActivity extends Activity {
             e.printStackTrace();
             return;
         }
+        
+        MediaStoreWrapper wrapper = new MediaStoreWrapper(this);
+        List<Song> songs = wrapper.list();
+        for (Song song : songs) {
+            Log.w(TAG, "Song: " + formatSong(song));
+            song = wrapper.loadSongData(song);
+            Log.w(TAG, String.format("%d bytes of data", song.getSize()));
+        }
+    }
+
+    private String formatSong(Song song) {
+        return String.format("%s by %s on their hit album %s", song.getName(), song.getArtist(), song.getAlbum());
     }
 
     protected void onHelloButtonClicked() {
