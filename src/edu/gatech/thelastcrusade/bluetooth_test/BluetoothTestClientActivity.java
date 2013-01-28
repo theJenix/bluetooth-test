@@ -33,8 +33,18 @@ public class BluetoothTestClientActivity extends Activity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_bluetooth_test_client);
         Log.w(TAG, "Create Called");
-        
+
         final BluetoothAdapter adapter = BluetoothAdapter.getDefaultAdapter();
+
+        try {
+            checkAndEnableBluetooth(adapter);
+        } catch (BluetoothNotEnabledException e) {
+            Toaster.tToast(this, "Unable to enable bluetooth adapter.");
+            e.printStackTrace();
+            return;
+        }
+
+        registerReceivers(adapter);
 
         Button button = (Button)this.findViewById(R.id.button0);
         button.setOnClickListener(new OnClickListener() {
@@ -55,16 +65,6 @@ public class BluetoothTestClientActivity extends Activity {
             }
         });
 
-        registerReceivers(adapter);
-        
-        try {
-            checkAndEnableBluetooth(adapter);
-        } catch (BluetoothNotEnabledException e) {
-            Toaster.tToast(this, "Unable to enable bluetooth adapter.");
-            e.printStackTrace();
-            return;
-        }
-        
         MediaStoreWrapper wrapper = new MediaStoreWrapper(this);
         List<Song> songs = wrapper.list();
         for (Song song : songs) {
