@@ -162,10 +162,12 @@ public class BluetoothTestClientActivity extends Activity {
         // Cancel discovery because it will slow down the connection
         adapter.cancelDiscovery();
         
+        //TODO: check to see if this device (out of this routine) is the same as the device above
         for (BluetoothDevice bonded : adapter.getBondedDevices()) {
             if (bonded.getAddress().equals(device.getAddress())) {
                 Log.w(TAG, "Already paired!  Using paired device");
-                device = bonded;
+                device = adapter.getRemoteDevice(bonded.getAddress());
+//                device = bonded;
             }
         }
         try {
