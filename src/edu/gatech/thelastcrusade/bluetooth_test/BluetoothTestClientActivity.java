@@ -82,7 +82,12 @@ public class BluetoothTestClientActivity extends Activity {
         //initial test message
         Log.w(TAG, "Sending test message");
         String message = "Hello, Reid.  From: " + BluetoothAdapter.getDefaultAdapter().getName();
-        this.messageThread.write(message.getBytes()); 
+        if(this.messageThread == null){
+            Log.w(TAG, "Message Thread null");
+        } else {
+            this.messageThread.write(message.getBytes());
+        }
+
     }
 
     /**
