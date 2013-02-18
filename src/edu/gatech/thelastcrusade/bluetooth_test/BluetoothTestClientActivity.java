@@ -81,7 +81,7 @@ public class BluetoothTestClientActivity extends Activity {
     protected void onHelloButtonClicked() {
         //initial test message
         Log.w(TAG, "Sending test message");
-        String message = "Hello, Reid.  From: " + BluetoothAdapter.getDefaultAdapter().getName();
+        String message = "Hello, Class.  From: " + BluetoothAdapter.getDefaultAdapter().getName();
         if(this.messageThread == null){
             Log.w(TAG, "Message Thread null");
         } else {
