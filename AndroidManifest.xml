@@ -19,15 +19,15 @@
         <activity
             android:name="edu.gatech.thelastcrusade.bluetooth_test.BluetoothTestActivity"
             android:label="@string/app_name" >
+        </activity>
+        <activity
+            android:name="edu.gatech.thelastcrusade.bluetooth_test.BluetoothTestClientActivity"
+            android:label="@string/title_activity_bluetooth_test_client" >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
-        </activity>
-        <activity
-            android:name="edu.gatech.thelastcrusade.bluetooth_test.BluetoothTestClientActivity"
-            android:label="@string/title_activity_bluetooth_test_client" >
         </activity>
         <activity
             android:name="edu.gatech.thelastcrusade.bluetooth_test.BluetoothTestServerActivity"
