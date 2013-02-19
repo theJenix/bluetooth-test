@@ -47,16 +47,19 @@ public class MessageThread extends Thread {
         int bytes; // bytes returned from read()
  
         // Keep listening to the InputStream until an exception occurs
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
         while (true) {
             try {
                 // Read from the InputStream
                 bytes = mmInStream.read(buffer);
                 //NOTE: for now, assume all strings
-                ByteArrayOutputStream baos = new ByteArrayOutputStream();
                 baos.write(buffer, 0, bytes);
-                this.messageNumber++; //one more message
-                mmHandler.obtainMessage(MESSAGE_READ, this.messageNumber, 0, baos.toString())
-                        .sendToTarget();
+                if (buffer[bytes - 1] == '\n') {
+                    this.messageNumber++; //one more message
+                    mmHandler.obtainMessage(MESSAGE_READ, this.messageNumber, 0, baos.toString())
+                            .sendToTarget();
+                    baos.reset();
+                }
             } catch (IOException e) {
                 e.printStackTrace();
                 break;
