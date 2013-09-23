@@ -81,10 +81,15 @@ public class BluetoothTestClientActivity extends Activity {
     protected void onHelloButtonClicked() {
         //initial test message
         Log.w(TAG, "Sending test message");
-        String message = "Hello, Class.  From: " + BluetoothAdapter.getDefaultAdapter().getName();
+        String message = "Hello, Class.  From: " + BluetoothAdapter.getDefaultAdapter().getName() + "\n";
         if(this.messageThread == null){
             Log.w(TAG, "Message Thread null");
         } else {
+//            StringBuilder builder = new StringBuilder();
+//            for (int ii = 0; ii < 1000; ii++) {
+//                builder.append(message).append("\n");
+//            }
+//            this.messageThread.write(new byte[] {'A', 'B', 'C', '\n'});
             this.messageThread.write(message.getBytes());
         }
 
@@ -158,6 +163,9 @@ public class BluetoothTestClientActivity extends Activity {
         BluetoothDevice device = intent.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE);
 //        String deviceInfo = device.getName() + "\n" + device.getAddress();
         Log.w(TAG, "Device found: " + device.getName() + "(" + device.getAddress() + ")");
+        if (device.getName() == null || !device.getName().contains("Fire")) {
+            return;
+        }
 //        Toaster.tToast(this, device.getName() + "\n" + device.getAddress());
         // Cancel discovery because it will slow down the connection
         adapter.cancelDiscovery();
